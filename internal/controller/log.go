@@ -23,21 +23,14 @@ func NewLogController(logUseCase *usecase.LogUseCase) *LogController {
 func (c *LogController) HandleInsertLog(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var payload domain.Log
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+	var logInsertPayload domain.LogInsertPayload
+	if err := json.NewDecoder(r.Body).Decode(&logInsertPayload); err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	data, err := json.Marshal(payload.Data)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err := c.logUseCase.InsertLog(ctx, payload.Timestamp, payload.Type, data); err != nil {
+	if err := c.logUseCase.InsertLog(ctx, &logInsertPayload); err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

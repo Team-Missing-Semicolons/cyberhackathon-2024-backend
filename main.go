@@ -66,11 +66,9 @@ func main() {
 
 	r.Use(corsOpts)
 
-	// Initialize the server multiplexer (router).
-
 	r.Get("/ping", handlePing)
-	r.Get("/log", logController.HandleGetLogs)
-	r.Post("/log", logController.HandleInsertLog)
+	r.Get("/logs", logController.HandleGetLogs)
+	r.Post("/logs", logController.HandleInsertLog)
 
 	// Create a new http server.
 	server := &http.Server{

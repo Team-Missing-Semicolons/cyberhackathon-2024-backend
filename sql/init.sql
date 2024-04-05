@@ -2,7 +2,7 @@
 CREATE TABLE logs
 (
 	`id`        INT AUTO_INCREMENT NOT NULL,
-	`timestamp` TEXT          NOT NULL,
+	`timestamp` TEXT               NOT NULL,
 	`log_type`  ENUM (
 		'room_entry',
 		'room_exit',
@@ -11,6 +11,7 @@ CREATE TABLE logs
 		'emergency'
 		)                          NOT NULL,
 	`data`      JSON               NOT NULL NOT NULL,
+	`unit_id`   INT                NOT NULL,
 
 	INDEX (`log_type`),
 	PRIMARY KEY (`id`)

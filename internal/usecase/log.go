@@ -21,8 +21,8 @@ func NewLogUseCase(logDataStore *mysql.LogDataStore) *LogUseCase {
 }
 
 // InsertLog processes the log and stores it in a database for further processing.
-func (uc *LogUseCase) InsertLog(ctx context.Context, timestamp int64, logType string, data []byte) error {
-	if err := uc.logDataStore.InsertLog(ctx, timestamp, logType, data); err != nil {
+func (uc *LogUseCase) InsertLog(ctx context.Context, logInsertPayload *domain.LogInsertPayload) error {
+	if err := uc.logDataStore.InsertLog(ctx, logInsertPayload); err != nil {
 		return fmt.Errorf("failed to store the log: %w: %w", ErrDataStoreFailed, err)
 	}
 	return nil

@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Team-Missing-Semicolons/cyberhackathon-2024-backend/internal/domain"
@@ -15,7 +16,7 @@ SELECT id, timestamp, log_type, data FROM logs
 
 // insertLog is a SQL statement that inserts a new entry into logs table.
 const insertLogSql = `
-INSERT INTO logs (timestamp, log_type, data) values (?, ?, ?)
+INSERT INTO logs (timestamp, log_type, data, unit_id) values (?, ?, ?, ?)
 `
 
 // LogDataStore represents a log data store for mysql database.
@@ -31,10 +32,24 @@ func NewLogDataStore(db *sql.DB) *LogDataStore {
 }
 
 // InsertLog inserts a log to the database.
-func (ds *LogDataStore) InsertLog(ctx context.Context, timestamp int64, logType string, data []byte) error {
-	if _, err := ds.db.ExecContext(ctx, insertLogSql, timestamp, logType, data); err != nil {
+func (ds *LogDataStore) InsertLog(ctx context.Context, logInsertPayload *domain.LogInsertPayload) error {
+	rawData, err := json.Marshal(logInsertPayload.Data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal log insert payload: %w", err)
+	}
+
+	_, err = ds.db.ExecContext(
+		ctx,
+		insertLogSql,
+		logInsertPayload.Timestamp,
+		logInsertPayload.Type,
+		rawData,
+		logInsertPayload.UnitID,
+	)
+	if err != nil {
 		return fmt.Errorf("failed to exec: %w", err)
 	}
+
 	return nil
 }
 
@@ -49,10 +64,18 @@ func (ds *LogDataStore) GetLog(ctx context.Context) ([]*domain.Log, error) {
 
 	for rows.Next() {
 		var logEntry domain.Log
-		if err := rows.Scan(&logEntry.Id, &logEntry.Timestamp, &logEntry.Type, &logEntry.Data); err != nil {
+		var rawData []byte
+
+		if err := rows.Scan(&logEntry.Id, &logEntry.Timestamp, &logEntry.Type, &rawData); err != nil {
 			fmt.Println("ERROR: failed to scan log row")
 			continue
 		}
+
+		if err := json.Unmarshal(rawData, &logEntry.Data); err != nil {
+			fmt.Println("failed to unmarshal log data")
+			continue
+		}
+
 		logs = append(logs, &logEntry)
 	}
 

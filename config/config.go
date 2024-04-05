@@ -23,11 +23,11 @@ type Config struct {
 	Database Database
 }
 
-// New loads Config, using .env as the config source, and returns it.
+// New loads Config, using .env.template as the config source, and returns it.
 func New(useDotenv bool) (*Config, error) {
 	if useDotenv {
-		if err := godotenv.Load(".env"); err != nil {
-			return nil, fmt.Errorf("failed to load .env: %w", err)
+		if err := godotenv.Load(".env.template"); err != nil {
+			return nil, fmt.Errorf("failed to load .env.template: %w", err)
 		}
 	}
 
