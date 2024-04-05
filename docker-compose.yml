@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8.1
+    restart: always
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: development
+      MYSQL_DATABASE: hackathon
+    ports:
+      - "3306:3306"
